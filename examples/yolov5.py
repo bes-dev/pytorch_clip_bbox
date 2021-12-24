@@ -37,16 +37,16 @@ def main(args):
     image = cv2.cvtColor(cv2.imread(args.image), cv2.COLOR_BGR2RGB)
     detections = detector(image)
     boxes = extract_boxes(detections)
-    filtered_boxes = clip_bbox(image, top_k=args.top_k)
+    filtered_boxes = clip_bbox(image, boxes, top_k=args.top_k)
     screen = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     for box in filtered_boxes:
         x, y, w, h = box["rect"]
-        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 4)
+        cv2.rectangle(screen, (x, y), (x + w, y + h), (0, 255, 0), 4)
     if args.output_image is None:
-        cv2.imshow("image", images)
+        cv2.imshow("image", screen)
         cv2.waitKey()
     else:
-        cv2.imwrite(args.output_image, image)
+        cv2.imwrite(args.output_image, screen)
 
 
 if __name__ == "__main__":
