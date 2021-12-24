@@ -1,7 +1,8 @@
 # pytorch_clip_bbox: Implementation of the CLIP guided bbox refinement for Object Detection.
 
 <p align="center">
-  <img src="resources/preds.jpg"/>
+  <img src="resources/out.png"/>
+  <figcaption>Lady in red dress</figcaption>
 </p>
 
 Pytorch based library to filter predicted bounding boxes using text/image user's prompts.
