@@ -6,6 +6,12 @@
 
 Pytorch based library to filter predicted bounding boxes using text/image user's prompts.
 
+Usually, object detection models trains to detect common classes of objects such as "car", "person", "cup", "bottle".
+But sometimes we need to detect more complex classes such as "lady in the red dress", "bottle of whiskey", or "where is my red cup" instead of "person", "bottle", "cup" respectively.
+One way to solve this problem is to train more complex detectors that can detect more complex classes,
+but we propose to use text-driven object detection that allows detecting any complex classes that can be described by natural language.
+This library is written to filter predicted bounding boxes using text/image descriptions of complex classes.
+
 ## Install package
 
 ```bash
