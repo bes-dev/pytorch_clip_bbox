@@ -26,7 +26,7 @@ class ClipBBOX(nn.Module):
     """
     def __init__(
             self,
-            clip_type: str = "ruclip",
+            clip_type: str = "clip_vit_b32",
             batch_size: int = 128
     ):
         super().__init__()
