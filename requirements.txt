@@ -1,0 +1,4 @@
+torch
+opencv-python
+pytorch_clip_guided_loss
+numpy
