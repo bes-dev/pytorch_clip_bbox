@@ -19,7 +19,7 @@ def extract_boxes(detections):
     boxes = []
     for i in range(detections.xyxy[0].size(0)):
         x1, y1, x2, y2, confidence, idx = detections.xyxy[0][i]
-        boxes.append([int(x1), int(y1), int(x2-x1), int(y2-y1)])
+        boxes.append([int(x1), int(y1), int(x2), int(y2)])
     return boxes
 
 def main(args):
@@ -27,21 +27,28 @@ def main(args):
     detector = torch.hub.load("ultralytics/yolov5", "yolov5s").to(args.device)
     clip_bbox = ClipBBOX(clip_type=args.clip_type).to(args.device)
     # add prompts
-    if args.text_prompt is not None:
-        clip_bbox.add_prompt(text=args.text_prompt)
+    # if args.text_prompt is not None:
+    #     clip_bbox.add_prompt(text=args.text_prompt)
     if args.image_prompt is not None:
         image = cv2.cvtColor(cv2.imread(args.image_prompt), cv2.COLOR_BGR2RGB)
         image = torch.from_numpy(image).permute(2, 0, 1).unsqueeze(0)
         image = img / 255.0
         clip_bbox.add_prompt(image=image)
+    clip_bbox.add_prompt(text="men in the red shirt")
+    clip_bbox.add_prompt(text="lady in black dress")
+    clip_bbox.add_prompt(text="men in the striped shirt")
     image = cv2.cvtColor(cv2.imread(args.image), cv2.COLOR_BGR2RGB)
     detections = detector(image)
     boxes = extract_boxes(detections)
-    filtered_boxes = clip_bbox(image, boxes, top_k=args.top_k)
+    ranking = clip_bbox(image, boxes, top_k=args.top_k)
     screen = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    for box in filtered_boxes:
-        x, y, w, h = box["rect"]
-        cv2.rectangle(screen, (x, y), (x + w, y + h), (0, 255, 0), 4)
+    for key in ranking.keys():
+        if key == "loss":
+            continue
+        for box in ranking[key]["ranking"]:
+            x1, y1, x2, y2 = box["rect"]
+            cv2.rectangle(screen, (x1, y1), (x2, y2), (0, 255, 0), 4)
+            cv2.putText(screen, ranking[key]["src"], (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 255, 0),thickness=4)
     if args.output_image is None:
         cv2.imshow("image", screen)
         cv2.waitKey()
