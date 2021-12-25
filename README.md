@@ -1,7 +1,7 @@
 # pytorch_clip_bbox: Implementation of the CLIP guided bbox ranking for Object Detection.
 
 <p align="center">
-  <img src="resources/preds.png"/>
+  <img src="resources/preds.jpg"/>
 </p>
 
 Pytorch based library to rank predicted bounding boxes using text/image user's prompts.
