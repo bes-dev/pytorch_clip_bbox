@@ -28,25 +28,30 @@ def main(args):
     clip_bbox = ClipBBOX(clip_type=args.clip_type).to(args.device)
     # add prompts
     if args.text_prompt is not None:
-        clip_bbox.add_prompt(text=args.text_prompt)
+        for prompt in args.text_prompt.split(","):
+            clip_bbox.add_prompt(text=prompt)
     if args.image_prompt is not None:
         image = cv2.cvtColor(cv2.imread(args.image_prompt), cv2.COLOR_BGR2RGB)
         image = torch.from_numpy(image).permute(2, 0, 1).unsqueeze(0)
         image = img / 255.0
         clip_bbox.add_prompt(image=image)
-    image = cv2.cvtColor(cv2.imread(args.image), cv2.COLOR_BGR2RGB)
-    detections = detector(image)
+    image = cv2.imread(args.image)
+    detections = detector(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     boxes = extract_boxes(detections)
     ranking = clip_bbox(image, boxes, top_k=args.top_k)
-    screen = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    for box in ranking["loss"]["ranking"]:
-        x1, y1, x2, y2 = box["rect"]
-        cv2.rectangle(screen, (x1, y1), (x2, y2), (0, 255, 0), 6)
+    for key in ranking.keys():
+        if key == "loss":
+            continue
+        for box in ranking[key]["ranking"]:
+            x1, y1, x2, y2 = box["rect"]
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 6)
+            cv2.rectangle(image, (x1, y1), (x2, y1-100), (0, 255, 0), -1)
+            cv2.putText(image, ranking[key]["src"], (x1 + 5, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 0), thickness=5)
     if args.output_image is None:
-        cv2.imshow("image", screen)
+        cv2.imshow("image", image)
         cv2.waitKey()
     else:
-        cv2.imwrite(args.output_image, screen)
+        cv2.imwrite(args.output_image, image)
 
 
 if __name__ == "__main__":
