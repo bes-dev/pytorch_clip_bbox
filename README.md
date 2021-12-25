@@ -48,7 +48,7 @@ def extract_boxes(detections):
     boxes = []
     for i in range(detections.xyxy[0].size(0)):
         x1, y1, x2, y2, confidence, idx = detections.xyxy[0][i]
-        boxes.append([int(x1), int(y1), int(x2-x1), int(y2-y1)])
+        boxes.append([int(x1), int(y1), int(x2), int(y2)])
     return boxes
 
 def main(args):
@@ -66,11 +66,11 @@ def main(args):
     image = cv2.cvtColor(cv2.imread(args.image), cv2.COLOR_BGR2RGB)
     detections = detector(image)
     boxes = extract_boxes(detections)
-    filtered_boxes = clip_bbox(image, boxes, top_k=args.top_k)
+    ranking = clip_bbox(image, boxes, top_k=args.top_k)
     screen = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    for box in filtered_boxes:
-        x, y, w, h = box["rect"]
-        cv2.rectangle(screen, (x, y), (x + w, y + h), (0, 255, 0), 4)
+    for box in ranking["loss"]["ranking"]:
+        x1, y1, x2, y2 = box["rect"]
+        cv2.rectangle(screen, (x1, y1), (x2, y2), (0, 255, 0), 6)
     if args.output_image is None:
         cv2.imshow("image", screen)
         cv2.waitKey()
